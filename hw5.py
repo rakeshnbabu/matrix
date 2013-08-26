@@ -3,12 +3,13 @@
 
 from vecutil import list2vec
 from solver import solve
-from matutil import listlist2mat, coldict2mat
+from matutil import listlist2mat, coldict2mat, mat2rowdict, mat2coldict, identity
 from mat import Mat
 from GF2 import one
 from vec import Vec
-
-
+from hw4 import exchange
+from independence import rank
+from triangular import triangular_solve as ts
 
 ## Problem 1
 w0 = list2vec([1,0,0])
@@ -61,24 +62,29 @@ def morph(S, B):
         [(Vec({0, 1, 2},{0: 1, 1: 1, 2: 0}), Vec({0, 1, 2},{0: 1, 1: 0, 2: 0})), (Vec({0, 1, 2},{0: 0, 1: 1, 2: 1}), Vec({0, 1, 2},{0: 0, 1: 1, 2: 0})), (Vec({0, 1, 2},{0: 1, 1: 0, 2: 1}), Vec({0, 1, 2},{0: 0, 1: 0, 2: 1}))]
 
     '''
-    pass
+    ejectList = []
+    A = []
+    for iVec in B:
+        ejectVec = exchange(S, A, iVec)
+        A.append(iVec)
+        ejectList.append((iVec, ejectVec))
 
-
+    return ejectList
 
 ## Problem 4
 # Please express each solution as a list of vectors (Vec instances)
 
-row_space_1 = [...]
-col_space_1 = [...]
+row_space_1 = [list2vec([1,2,0]),list2vec([0,2,1])]
+col_space_1 = [list2vec([1,0]),list2vec([0,1])]
 
-row_space_2 = [...]
-col_space_2 = [...]
+row_space_2 = [list2vec([1,4,0,0]),list2vec([0,2,2,0]),list2vec([0,0,1,0])]
+col_space_2 = [list2vec([1,0,0]),list2vec([4,2,0]),list2vec([0,2,1])]
 
-row_space_3 = [...]
-col_space_3 = [...]
+row_space_3 = [list2vec([1])]
+col_space_3 = [list2vec([1,2,3])]
 
-row_space_4 = [...]
-col_space_4 = [...]
+row_space_4 = [list2vec([1,0]),list2vec([2,1])]
+col_space_4 = [list2vec([1,2,3]),list2vec([0,1,4])]
 
 
 
@@ -104,8 +110,10 @@ def my_is_independent(L):
     >>> my_is_independent(L[2:5])
     False
     '''
-    pass
-
+    if rank(L) == len(L):
+            return True
+    else:
+            return False
 
 ## Problem 6
 def subset_basis(T): 
@@ -121,7 +129,14 @@ def subset_basis(T):
     >>> subset_basis([a0,a1,a2,a3]) == [Vec({'c', 'b', 'a', 'd'},{'a': 1}), Vec({'c', 'b', 'a', 'd'},{'b': 1}), Vec({'c', 'b', 'a', 'd'},{'c': 1})]
     True
     '''
-    pass
+    S = []
+    curRank = 0
+    for iVec in T:
+        if rank(S + [iVec]) > curRank:
+            S.append(iVec)
+            curRank = rank(S)
+
+    return S
 
 
 
@@ -134,15 +149,15 @@ def my_rank(L):
     >>> my_rank([list2vec(v) for v in [[1,2,3],[4,5,6],[1.1,1.1,1.1]]])
     2
     '''
-    pass
+    return len(subset_basis(L))
 
 
 ## Problem 8
 # Please give each answer as a boolean
 
-only_share_the_zero_vector_1 = ...
-only_share_the_zero_vector_2 = ...
-only_share_the_zero_vector_3 = ...
+only_share_the_zero_vector_1 = True 
+only_share_the_zero_vector_2 = True
+only_share_the_zero_vector_3 = True
 
 
 
@@ -161,9 +176,18 @@ def direct_sum_decompose(U_basis, V_basis, w):
     >>> direct_sum_decompose(U_basis, V_basis, w) == (Vec({0, 1, 2, 3, 4, 5},{0: 2.0, 1: 4.999999999999972, 2: 0.0, 3: 0.0, 4: 1.0, 5: 0.0}), Vec({0, 1, 2, 3, 4, 5},{0: 0.0, 1: 0.0, 2: 0.0, 3: 0.0, 4: 0.0, 5: 0.0}))
     True
     '''
-    pass
+    testMat = coldict2mat(U_basis+V_basis)
+    coef = solve(testMat, w)
+    Nu = len(U_basis)
+    Nv = len(V_basis)
+    retU = Vec(U_basis[0].D, {})
+    retV = Vec(V_basis[0].D, {})
+    for i in range(Nu):
+        retU += coef[i]*U_basis[i]
+    for i in range(Nv):
+        retV += coef[i+Nu] * V_basis[i]
 
-
+    return (retU, retV)
 
 ## Problem 10
 def is_invertible(M): 
@@ -175,7 +199,13 @@ def is_invertible(M):
     >>> is_invertible(M)
     True
     '''
-    pass
+    MRowDict = list(mat2rowdict(M).values())
+    if len(MRowDict) == my_rank(MRowDict):
+        if len(M.D[0])*len(M.D[1])  == len(M.f):
+            if len(M.D[0]) == len(M.D[1]):
+                return True
+
+    return False
 
 
 ## Problem 11
@@ -188,7 +218,11 @@ def find_matrix_inverse(A):
     >>> find_matrix_inverse(M) == Mat(({0, 1, 2}, {0, 1, 2}), {(0, 1): one, (2, 0): 0, (0, 0): 0, (2, 2): one, (1, 0): one, (1, 2): 0, (1, 1): 0, (2, 1): 0, (0, 2): 0})
     True
     '''
-    pass
+    bRows = []
+    idMat = list(mat2coldict(identity(A.D[0], one)).values())
+    for i in idMat:
+        bRows.append(solve(A,i))
+    return coldict2mat(bRows)
 
 
 
@@ -201,4 +235,8 @@ def find_triangular_matrix_inverse(A):
     >>> find_triangular_matrix_inverse(A) == Mat(({0, 1, 2, 3}, {0, 1, 2, 3}), {(0, 1): -0.5, (1, 2): -0.3, (3, 2): 0.0, (0, 0): 1.0, (3, 3): 1.0, (3, 0): 0.0, (3, 1): 0.0, (2, 1): 0.0, (0, 2): -0.05000000000000002, (2, 0): 0.0, (1, 3): -0.87, (2, 3): -0.1, (2, 2): 1.0, (1, 0): 0.0, (0, 3): -3.545, (1, 1): 1.0})
     True
     '''
-    pass
+    bRows = []
+    idMat = list(mat2coldict(identity(A.D[0], 1)).values())
+    for i in idMat:
+        bRows.append(ts(list(mat2rowdict(A).values()),list(range(len(A.D[0]))),i))
+    return coldict2mat(bRows)
