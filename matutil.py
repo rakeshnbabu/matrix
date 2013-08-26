@@ -8,7 +8,7 @@ def identity(D, one):
   >>> identity({0,1,2}, 1)
   Mat(({0, 1, 2}, {0, 1, 2}), {(0, 0): 1, (1, 1): 1, (2, 2): 1})
   """
-  return Mat((D,D), {(d,d):1 for d in D})
+  return Mat((D,D), {(d,d):one for d in D})
 
 def keys(d):
   """Given a dict, returns something that generates the keys; given a list,
