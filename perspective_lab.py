@@ -54,4 +54,4 @@ def mat_move2board(Y):
           whiteboard plane (the point of intersection with the whiteboard plane 
           of the line through the origin and q).
     '''
-    return mu.coldict2mat({key:move2board(val) for key, val in mu.mat2coldict(Y)})
+    return mu.coldict2mat({key:move2board(val) for (key, val) in mu.mat2coldict(Y).items()})
