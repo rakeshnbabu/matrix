@@ -34,17 +34,14 @@ def make_equations(x1, x2, w1, w2):
 
 
 ## Task 3
-preL = [make_equations(x1,x2,w1,w2) for (x1,x2,w1,w2) in [(358,36,0,0),(329,597,0,1),(529,157,1,0),(580,483,1,1)]]
-L = []
+L = make_equations(358,36,0,0)+make_equations(329,597,0,1)+make_equations(592,157,1,0)+make_equations(580,483,1,1)
 domain = {(a, b) for a in {'y1', 'y2', 'y3'} for b in {'x1', 'x2', 'x3'}}
-for i in preL:
-    L.append(i[0])
-    L.append(i[1])
 L.append(Vec(domain, {('y1','x1'):1}))
-b = Vec(set(range(9)), {8:1})
-h = solve(mu.rowdict2mat(L),b)
-print(h)
+b = Vec({0,1,2,3,4,5,6,7,8}, {8:1})
+mL = mu.rowdict2mat(L)
+h = solve(mL,b)
 H = Mat(({'y1','y2','y3'},{'x1','x2','x3'}), h.f)
+
 
 ## Task 4
 def mat_move2board(Y):
@@ -57,4 +54,4 @@ def mat_move2board(Y):
           whiteboard plane (the point of intersection with the whiteboard plane 
           of the line through the origin and q).
     '''
-    pass
+    return mu.coldict2mat({key:move2board(val) for key, val in mu.mat2coldict(Y)})
