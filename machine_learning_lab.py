@@ -1,6 +1,7 @@
 from mat import *
 from vec import *
 from cancer_data import *
+import matutil as mu
 
 ## Task 1 ##
 def signum(u):
@@ -15,7 +16,7 @@ def signum(u):
         >>> signum(Vec({1,2,3},{1:2, 2:-1})) == Vec({1,2,3},{1:1,2:-1,3:1})
         True
     '''
-    pass
+    return Vec(u.D, {key:1 if u[key] >= 0 else -1 for key in u.D})
 
 ## Task 2 ##
 def fraction_wrong(A, b, w):
@@ -28,7 +29,12 @@ def fraction_wrong(A, b, w):
         - Fraction (as a decimal in [0,1]) of vectors incorrectly
           classified by w 
     '''
-    pass
+    lenA = len(mu.mat2rowdict(A))
+    test = A*w
+    sigTest = signum(test)
+    sigB = signum(b)
+    numWrong = sum([1 if sigTest[i] != sigB[i] else 0 for i in sigTest.D])
+    return numWrong/lenA
 
 ## Task 3 ##
 def loss(A, b, w):
@@ -40,7 +46,9 @@ def loss(A, b, w):
     Output:
         - Value of loss function at w for training data
     '''
-    pass
+    testLoss = A*w - b
+    testLoss *= testLoss
+    return testLoss
 
 ## Task 4 ##
 def find_grad(A, b, w):
@@ -52,7 +60,11 @@ def find_grad(A, b, w):
     Output:
         - Value of the gradient function at w
     '''
-    pass
+    aRows = mu.mat2rowdict(A)
+    gradRows = {}
+    for key in aRows.keys():
+        gradRows[key] = 2*(aRows[key]*w - b[key])*aRows[key]
+    return sum(gradRows)
 
 ## Task 5 ##
 def gradient_descent_step(A, b, w, sigma):
@@ -66,5 +78,5 @@ def gradient_descent_step(A, b, w, sigma):
         - The vector w' resulting from 1 iteration of gradient descent
           starting from w and moving sigma.
     '''
-    pass
+    return w - sigma*find_grad(A,b,w)
 
