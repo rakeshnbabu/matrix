@@ -60,11 +60,8 @@ def find_grad(A, b, w):
     Output:
         - Value of the gradient function at w
     '''
-    aRows = mu.mat2rowdict(A)
-    gradRows = {}
-    for key in aRows.keys():
-        gradRows[key] = 2*(aRows[key]*w - b[key])*aRows[key]
-    return sum(gradRows)
+    return 2*(A*w-b)*A
+
 
 ## Task 5 ##
 def gradient_descent_step(A, b, w, sigma):
