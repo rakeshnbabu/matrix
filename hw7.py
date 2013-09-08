@@ -18,7 +18,7 @@ def basis(vlist):
     Output:
         - a list of linearly independent Vecs with equal span to vlist
     '''
-    pass
+    return [iVec for iVec in orthogonalize(vlist) if iVec * iVec > 10**-20]
 
 
 
@@ -30,7 +30,8 @@ def subset_basis(vlist):
     Output:
         - linearly independent subset of vlist with the same span as vlist
     '''
-    pass
+    orthVecs = orthogonalize(vlist)
+    return [vlist[i] for i in range(len(vlist)) if orthVecs[i]*orthVecs[i] > 10**-20]
 
 
 
@@ -48,7 +49,7 @@ def orthogonal_vec2rep(Q, b):
         >>> orthogonal_vec2rep(Q, b) == Vec({0, 1},{0: 8, 1: 4})
         True
     '''
-    pass
+    return Q*b
 
 
 
@@ -68,7 +69,7 @@ def orthogonal_change_of_basis(A, B, a):
         >>> orthogonal_change_of_basis(A, B, a) == Vec({0, 1, 2},{0: 8, 1: 2, 2: 6})
         True
     '''
-    pass
+    return a*A*B
 
 
 
@@ -86,7 +87,7 @@ def orthonormal_projection_orthogonal(W, b):
         >>> orthonormal_projection_orthogonal(W, b) == Vec({0, 1, 2},{0: 0, 1: 0, 2: 4})
         True
     '''
-    pass
+    return b-(W*b)*W
 
 
 
