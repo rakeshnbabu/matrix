@@ -6,9 +6,9 @@ import orthonormalization
 from mat import Mat
 from vec import Vec
 from vecutil import list2vec
-from matutil import listlist2mat
-
-
+from matutil import listlist2mat, mat2rowdict
+from QR import factor
+from triangular import triangular_solve
 
 ## Problem 1
 def basis(vlist):
@@ -109,7 +109,7 @@ least_squares_Q1 = listlist2mat([[.8,-0.099],[.6, 0.132],[0,0.986]])
 least_squares_R1 = listlist2mat([[10,2],[0,6.08]]) 
 least_squares_b1 = list2vec([10, 8, 6])
 
-x_hat_1 = ...
+x_hat_1 = list2vec([(12.8-2*5.98/6.08)/10, 5.98/6.08])
 
 
 least_squares_A2 = listlist2mat([[3, 1], [4, 1], [5, 1]])
@@ -117,7 +117,7 @@ least_squares_Q2 = listlist2mat([[.424, .808],[.566, .115],[.707, -.577]])
 least_squares_R2 = listlist2mat([[7.07, 1.7],[0,.346]])
 least_squares_b2 = list2vec([10,13,15])
 
-x_hat_2 = ...
+x_hat_2 = list2vec([(22.2-1.7*0.92/0.346)/7.07, 0.92/0.346])
 
 
 
@@ -139,5 +139,6 @@ def QR_solve(A, b):
         >>> result * result < 1E-10
         True
     '''
-    pass
+    Q,R = factor(A)
+    return triangular_solve(mat2rowdict(R), sorted(A.D[1], key=repr), Q.transpose()*b)
 
